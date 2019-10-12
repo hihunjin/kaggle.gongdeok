@@ -8,7 +8,7 @@ https://www.kaggle.com/c/statoil-iceberg-classifier-challenge
 - Choose competition : Icerberg Calssifier Challenge
 - Understand the background of competition
  
-### Understanding the Backgroound
+### Understanding the Background
  - Competition goal
  - Evaluation
  - HH / HV
