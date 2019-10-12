@@ -9,3 +9,4 @@
 ## Reference
 
 * https://arxiv.org/pdf/1812.07367.pdf
+* https://github.com/Kaggle/kaggle-api (for the kaggle download by api)
