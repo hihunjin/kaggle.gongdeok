@@ -10,3 +10,6 @@ Statoil C-CORE Iceberg Classifier Challenge.
 ## 2019-10-21 
 > 간단한 AutoEncoder 모델 구성. 데이터가 잘 만들어지고 네트워크가 잘 작동하는지만 확인했다.
 Overfitting을 막기 위해 dropout을 쓸 수도 있지만 더 좋은 방법이 있나 검색한 후 작업을 진행할 예정.
+
+## 2019-10-26
+> 과적합의 끝을 보았다..
