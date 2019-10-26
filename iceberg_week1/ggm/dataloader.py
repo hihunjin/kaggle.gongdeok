@@ -11,7 +11,7 @@ class Dataloader(object):
         self.test = pd.read_json(datapath + '/test.json')
         self.vector2image()
         self.normalize() if normalize else None
-        self.noise = True
+        self.noise = gaussian
 
     def getvalue(self, key):
         return self.train[key] if key == 'is_iceberg' else self.train[key], self.test[key]
@@ -58,25 +58,20 @@ class Dataloader(object):
         origin = augmented
 
         if self.noise:
-            augmented = augmented + tf.random.normal(mean = 0, stddev = .2, shape = augmented.shape, dtype = tf.float32)
-
-        print(id(augmented))
-        print(id(origin))
+            augmented = augmented + tf.random.normal(mean = 0, stddev = 0.3 , shape = augmented.shape, dtype = tf.float32)
+   
         return augmented, origin
     
     def dataload(self, train = True, at_encoder = True, train_size = 0.8, batch_size = 16, *args, **kwargs):
         if train:
             if at_encoder:
                 x_train, x_valid, y_train, y_valid = train_test_split(self.x_train, self.x_train, random_state = 1, train_size = 0.8)
-                
                 train_ds = tf.data.Dataset.from_tensor_slices(x_train).map(lambda elm: self.augment_image(augmented = elm, kwargs = kwargs)).shuffle(10000).batch(batch_size)
-                # train_ds = tf.data.Dataset.from_tensor_slices((x_train)).shuffle(10000).batch(batch_size)
                 valid_ds = tf.data.Dataset.from_tensor_slices((x_valid, y_valid)).shuffle(10000).batch(batch_size)
-                # augment_helper = partial(self.augment_image, **kwargs)
                 return train_ds, valid_ds
             else:
                 x_train, x_valid, y_train, y_valid = train_test_split(self.x_train, self.train['is_iceberg'], random_state = 1, train_size = 0.8)
-                train_ds = tf.data.Dataset.from_tensor_slices((x_train, y_train)).shuffle(10000).batch(batch_size)
-                valid_ds = tf.data.Dataset.from_tensor_slices((x_valid, y_valid)).shuffle(10000).batch(batch_size)
-                return train_ds.map(lambda elm : self.augment_image(elm, **kwargs)), valid_ds
+                train_ds = tf.data.Dataset.from_tensor_slices((x_train, y_train)).shuffle(10000).batch(batch_size).repeat()
+                valid_ds = tf.data.Dataset.from_tensor_slices((x_valid, y_valid)).shuffle(10000).batch(batch_size).repeat()
+                return train_ds, valid_ds
         return self.x_test

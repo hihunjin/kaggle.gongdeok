@@ -1,15 +1,10 @@
-import os
-import asyncio
 import numpy as np
-import pandas as pd
-from time import sleep
 import matplotlib.pyplot as plt
 
 from model import AutoEncoder
 from dataloader import Dataloader
 
 import tensorflow as tf
-from sklearn.model_selection import train_test_split
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=4096)])
@@ -42,6 +37,7 @@ if __name__ == "__main__":
     show = False
 
     AE = AutoEncoder()
+
     data_helper = Dataloader(
         datapath = AE.presets['dataset_path'],
         normalize= True,
@@ -69,13 +65,13 @@ if __name__ == "__main__":
     for epoch in range(AE.presets['max_epoch']):
         for inputs, outputs in train_ds:
             loss, predictions = train_step(inputs, outputs)
-        train_loss = tf.reduce_mean(loss)
+        train_loss = tf.reduce_mean(tf.reduce_mean(loss, axis=0))
 
         for v_inputs, v_outputs in valid_ds:
             v_loss, v_predictions = valid_step(v_inputs, v_outputs)
-        valid_loss = tf.reduce_mean(v_loss)
+        valid_loss = tf.reduce_mean(tf.reduce_mean(v_loss, axis=0))
 
-        template = 'epoch: {} train: {} valid: {}'
+        template = 'epoch: {:<10} train: {:<30} valid: {:<30}'
         print (template.format(epoch+1, train_loss, valid_loss))
         
         if epoch and show:
@@ -95,10 +91,10 @@ if __name__ == "__main__":
             plt.xlabel('predictions')
             plt.imshow(predictions[0][:,:,0].numpy())
             plt.subplot(2, 3, 4)
-            plt.xlabel('noise input')
+            plt.xlabel('valid input')
             plt.imshow(v_inputs[0][:,:,0].numpy())
             plt.subplot(2, 3, 5)
-            plt.xlabel('real input')
+            plt.xlabel('valid input')
             plt.imshow(v_outputs[0][:,:,0].numpy())
             plt.subplot(2, 3, 6)
             plt.xlabel('predictions')
@@ -107,3 +103,6 @@ if __name__ == "__main__":
             plt.pause(1) # Linux Cent OS 에서는 그림 갱신을 위해 필수 입력.
             plt.ion()
             plt.show()
+            plt.pause(1)
+
+    AE.saved_model()
